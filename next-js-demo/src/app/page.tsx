@@ -17,6 +17,12 @@ export default function Home() {
       >
         Experiment demo
       </button>
+      <button
+        className="p-2 border border-white cursor-pointer"
+        onClick={() => router.push("/rules")}
+      >
+        Rule demo
+      </button>
     </div>
   );
 }

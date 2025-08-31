@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Analytics from "@datablit/analytics-js";
+import datablit from "@datablit/datablit-js";
 
-function Page() {
+export default function Page() {
   const [identifyPayload, setIdentifyPayload] = useState<Record<string, any>>({
     name: "Deepak",
     email: "deepak12@gmail.com",
@@ -15,9 +15,9 @@ function Page() {
   const [event, setEvent] = useState<string>("order placed");
 
   useEffect(() => {
-    Analytics.init({
-      writeKey: "1L01JWS1YRSNVJD9233TJZKJ9FCE",
-      endpoint: "http://api.datablit.com:30081/v1/batch",
+    datablit.init({
+      apiKey: process.env.NEXT_PUBLIC_DATABLIT_API_KEY || "",
+      // endpoint: "https://staging-event.datablit.com/v1/batch",
       batchSize: 1,
       flushInterval: 2000,
     });
@@ -44,7 +44,7 @@ function Page() {
           <button
             className="cursor-pointer p-1 border border-white"
             onClick={() => {
-              Analytics.identify(userId, identifyPayload);
+              datablit.identify(userId, identifyPayload);
             }}
           >
             Identify
@@ -68,7 +68,7 @@ function Page() {
           <button
             className="cursor-pointer p-1 border border-white"
             onClick={() => {
-              Analytics.track(event, trackPayload);
+              datablit.track(event, trackPayload);
             }}
           >
             Track
@@ -78,5 +78,3 @@ function Page() {
     </div>
   );
 }
-
-export default Page;
