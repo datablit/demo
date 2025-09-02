@@ -15,19 +15,19 @@ export default function CheckoutPage() {
   const [isCodDisable, setIsCodDisable] = useState<boolean>(false);
 
   useEffect(() => {
+    if (user && user.id)
+      datablit.rule
+        .evalRule({ key: "disable_cod", userId: user.id })
+        .then((res) => setIsCodDisable(res.result));
+  }, [user]);
+
+  useEffect(() => {
     if (!user) {
       router.push("/auth");
     } else if (cart.length === 0) {
       router.push("/cart");
     }
   }, [user, cart.length, router]);
-
-  useEffect(() => {
-    if (user && user.id)
-      datablit.rule
-        .evalRule({ key: "disable_cod", userId: user.id })
-        .then((res) => setIsCodDisable(res.result));
-  }, [user]);
 
   const total = cart.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
