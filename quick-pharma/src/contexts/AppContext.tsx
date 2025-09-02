@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import datablit from "@datablit/datablit-js";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 interface User {
   id: string;
@@ -68,13 +75,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [experimentVariant, setExperimentVariant] =
     useState<ExperimentVariant>("control");
 
+  useEffect(() => {
+    datablit.init({
+      apiKey: "4L01K415P9PC755MAFKSGGTWFX1V",
+      batchSize: 1,
+    });
+    return () => {};
+  }, []);
+
   const signIn = (email: string) => {
     // Dummy auth - just set a user
-    setUser({
-      id: "1",
+    const user = {
+      id: new Date().getTime() + "",
       email,
       name: email.split("@")[0],
-    });
+    };
+    setUser(user);
+
+    // identify
+
+    datablit.identify(user.id, { name: user.name, email: user.email });
   };
 
   const signOut = () => {

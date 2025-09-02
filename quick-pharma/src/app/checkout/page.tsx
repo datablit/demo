@@ -4,12 +4,15 @@ import { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
+import datablit from "@datablit/datablit-js";
 
 export default function CheckoutPage() {
   const { user, cart, placeOrder } = useApp();
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cod">("card");
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
+
+  const [isCodDisable, setIsCodDisable] = useState<boolean>(false);
 
   useEffect(() => {
     if (!user) {
@@ -18,6 +21,13 @@ export default function CheckoutPage() {
       router.push("/cart");
     }
   }, [user, cart.length, router]);
+
+  useEffect(() => {
+    if (user && user.id)
+      datablit.rule
+        .evalRule({ key: "disable_cod", userId: user.id })
+        .then((res) => setIsCodDisable(res.result));
+  }, [user]);
 
   const total = cart.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -33,6 +43,9 @@ export default function CheckoutPage() {
       setIsProcessing(false);
       router.push(`/order-confirmation?orderId=${orderId}`);
     }, 1500);
+
+    // Track "PLACED_ORDER"
+    datablit.track("PLACED_ORDER", { total: total });
   };
 
   return (
@@ -103,29 +116,33 @@ export default function CheckoutPage() {
                 </label>
               </div>
 
-              <div className="flex items-center bg-gray-50 p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300">
-                <input
-                  id="cod"
-                  name="payment"
-                  type="radio"
-                  value="cod"
-                  checked={paymentMethod === "cod"}
-                  onChange={(e) => setPaymentMethod(e.target.value as "cod")}
-                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-                />
-                <label
-                  htmlFor="cod"
-                  className="ml-4 block text-lg font-bold text-gray-900"
-                >
-                  💰 Cash on Delivery
-                </label>
-              </div>
+              {/* Show COD only if rule return false */}
+
+              {!isCodDisable && (
+                <div className="flex items-center bg-gray-50 p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300">
+                  <input
+                    id="cod"
+                    name="payment"
+                    type="radio"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={(e) => setPaymentMethod(e.target.value as "cod")}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <label
+                    htmlFor="cod"
+                    className="ml-4 block text-lg font-bold text-gray-900"
+                  >
+                    💰 Cash on Delivery
+                  </label>
+                </div>
+              )}
             </div>
 
             {paymentMethod === "card" && (
               <div className="mt-6 p-4 bg-blue-50 rounded-md">
                 <p className="text-sm text-blue-800">
-                  💳 Card payment selected. Click "Place Order" to proceed.
+                  💳 Card payment selected. Click Place Order to proceed.
                 </p>
               </div>
             )}

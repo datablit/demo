@@ -5,6 +5,7 @@ import { useApp } from "@/contexts/AppContext";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import datablit from "@datablit/datablit-js";
 
 export default function OrdersPage() {
   const { user, orders, cancelOrder } = useApp();
@@ -20,6 +21,9 @@ export default function OrdersPage() {
     if (confirm("Are you sure you want to cancel this order?")) {
       cancelOrder(orderId);
       alert("Order cancelled successfully");
+      // Track "CANCELLED_ORDER"
+
+      datablit.track("CANCELLED_ORDER", { orderId: orderId });
     }
   };
 
@@ -33,7 +37,7 @@ export default function OrdersPage() {
         {orders.length === 0 ? (
           <div className="text-center">
             <p className="text-gray-600 mb-8">
-              You haven't placed any orders yet
+              You haven not placed any orders yet
             </p>
             <Link
               href="/"

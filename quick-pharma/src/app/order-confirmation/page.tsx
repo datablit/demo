@@ -1,13 +1,13 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
 import { useApp } from "@/contexts/AppContext";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
-export default function OrderConfirmationPage() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId");
+export default function OrderConfirmationPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const orderId = searchParams.orderId;
   const { orders } = useApp();
 
   const order = orders.find((o) => o.id === orderId);
