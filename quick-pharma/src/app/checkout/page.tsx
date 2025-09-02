@@ -10,15 +10,17 @@ export default function CheckoutPage() {
   const { user, cart, placeOrder } = useApp();
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cod">("card");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isNewUser, setIsNewUser] = useState<boolean>(false);
   const router = useRouter();
 
   const [isCodDisable, setIsCodDisable] = useState<boolean>(false);
 
   useEffect(() => {
-    if (user && user.id)
+    if (user && user.id) {
       datablit.rule
         .evalRule({ key: "disable_cod", userId: user.id })
         .then((res) => setIsCodDisable(res.result));
+    }
   }, [user]);
 
   useEffect(() => {
@@ -33,6 +35,9 @@ export default function CheckoutPage() {
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
+
+  const discountedTotal = isNewUser ? total * 0.9 : total;
+  const discountAmount = isNewUser ? total * 0.1 : 0;
 
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
@@ -82,10 +87,44 @@ export default function CheckoutPage() {
             ))}
 
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex justify-between items-center">
+              {isNewUser && (
+                <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-green-800">
+                      🎉 New User Offer!
+                    </span>
+                    <span className="text-lg font-bold text-green-800">
+                      10% OFF
+                    </span>
+                  </div>
+                  <p className="text-sm text-green-700 mt-1">
+                    Welcome! You get 10% off your first order.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-lg text-gray-700">Subtotal:</span>
+                <span className="text-lg text-gray-700">
+                  ${total.toFixed(2)}
+                </span>
+              </div>
+
+              {isNewUser && (
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-lg text-green-700 font-semibold">
+                    Discount (10%):
+                  </span>
+                  <span className="text-lg text-green-700 font-semibold">
+                    -${discountAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                 <span className="text-xl font-bold text-gray-900">Total:</span>
                 <span className="text-2xl font-bold text-gray-900 bg-yellow-100 px-4 py-2 rounded-lg">
-                  ${total.toFixed(2)}
+                  ${discountedTotal.toFixed(2)}
                 </span>
               </div>
             </div>
