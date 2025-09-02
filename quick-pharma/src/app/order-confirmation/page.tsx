@@ -1,14 +1,20 @@
+"use client";
+
 import { useApp } from "@/contexts/AppContext";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function OrderConfirmationPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const orderId = searchParams.orderId;
+export default function OrderConfirmationPage() {
+  const searchParams = useSearchParams();
   const { orders } = useApp();
+  const [orderId, setOrderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = searchParams.get("orderId");
+    setOrderId(id);
+  }, [searchParams]);
 
   const order = orders.find((o) => o.id === orderId);
 

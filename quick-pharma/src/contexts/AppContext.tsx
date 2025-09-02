@@ -78,6 +78,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     datablit.init({
       apiKey: "4L01K415P9PC755MAFKSGGTWFX1V",
+      flushInterval: 2000,
       batchSize: 1,
     });
     return () => {};
